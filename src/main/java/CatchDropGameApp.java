@@ -23,6 +23,7 @@ public class CatchDropGameApp extends GameApplication {
     protected void initGameVars(Map<String, Object> vars) {
         vars.put("playerScore", 0);
         vars.put("playerHeal", 3);
+        vars.put("playerLostScore", 0);
     }
 
     @Override
@@ -59,6 +60,14 @@ public class CatchDropGameApp extends GameApplication {
         heal.setTranslateY(108);
         heal.textProperty().bind(getWorldProperties().intProperty("playerHeal").asString());
         getGameScene().addUINode(heal);
+
+        Text lostScore = new Text();
+        lostScore.setFill(Color.GREEN);
+        lostScore.setStyle("-fx-font: 30 arial;");
+        lostScore.setTranslateX(85);
+        lostScore.setTranslateY(148);
+        lostScore.textProperty().bind(getWorldProperties().intProperty("playerLostScore").asString());
+        getGameScene().addUINode(lostScore);
     }
 
     @Override
@@ -75,6 +84,19 @@ public class CatchDropGameApp extends GameApplication {
         // for each entity of Type.DROPLET translate (move) it down
         getGameWorld().getEntitiesByType(Type.DROPLET).forEach(droplet -> droplet.translateY(150 * tpf));
         getGameWorld().getEntitiesByType(Type.GRENADE).forEach(droplet -> droplet.translateY(100 * tpf));
+        getGameWorld().getEntitiesByType(Type.DROPLET).forEach(droplet -> {
+            if (droplet.getY() == H) {
+                droplet.removeFromWorld();
+                inc("playerLostScore", +1);
+
+                int lostScore = getWorldProperties().getValue("playerLostScore");
+                if (lostScore == 30) {
+                    showGameOver(getWorldProperties().getValue("playerScore"));
+                }
+            }
+        });
+
+
     }
 
     @Override
@@ -89,7 +111,6 @@ public class CatchDropGameApp extends GameApplication {
             play("123.wav");
             inc("playerHeal", -1);
 
-            // if heal == 0 then game over
             int heal = getWorldProperties().getValue("playerHeal");
             if (heal == 0) {
                 showGameOver(getWorldProperties().getValue("playerScore"));
