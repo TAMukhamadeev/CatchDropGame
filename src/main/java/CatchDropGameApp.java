@@ -88,6 +88,12 @@ public class CatchDropGameApp extends GameApplication {
             grenade.removeFromWorld();
             play("123.wav");
             inc("playerHeal", -1);
+
+            // if heal == 0 then game over
+            int heal = getWorldProperties().getValue("playerHeal");
+            if (heal == 0) {
+                showGameOver(getWorldProperties().getValue("playerScore"));
+            }
         });
     }
 
@@ -103,7 +109,7 @@ public class CatchDropGameApp extends GameApplication {
 
         Entity bucket = entityBuilder()
                 .type(Type.BUCKET)
-                .at(getAppWidth() / 5, getAppHeight() - 200)
+                .at(getAppWidth() / 2, getAppHeight() - 200)
                 .viewWithBBox("bucket.png")
                 .collidable()
                 .buildAndAttach();
@@ -128,6 +134,10 @@ public class CatchDropGameApp extends GameApplication {
                 .viewWithBBox("grenade.png")
                 .collidable()
                 .buildAndAttach();
+    }
+
+    private void showGameOver(int score) {
+        getDialogService().showMessageBox("Game over. Your score: " + score, getGameController()::exit);
     }
 
     public static void main(String[] args) {
